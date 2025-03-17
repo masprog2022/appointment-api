@@ -15,7 +15,7 @@ public class Patient {
     private String email;
     private String cpf;
 
- 
+
     public Long getId() {
         return id;
     }
