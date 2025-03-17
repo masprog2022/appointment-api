@@ -2,6 +2,7 @@ package com.masprog.appointment_api.domain.service;
 
 import com.masprog.appointment_api.domain.entity.Patient;
 import com.masprog.appointment_api.domain.repository.PatientRepository;
+import com.masprog.appointment_api.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,20 @@ public class PatientService {
     }
 
     public Patient save(Patient patient){
+
+        boolean existCpf = false;
+
+      Optional<Patient> optPatient =  patientRepository.findByCpf(patient.getCpf());
+      if(optPatient.isPresent()){
+          if(!optPatient.get().getId().equals(patient.getId())){
+             existCpf = true;
+          }
+      }
+
+      if(existCpf){
+          throw  new BusinessException("Cpf já cadastrado.");
+      }
+
         return patientRepository.save(patient);
     }
     public List<Patient> getAll(){
