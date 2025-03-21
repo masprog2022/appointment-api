@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/patients")
@@ -18,43 +19,51 @@ public class PatientController {
 
     private final PatientService patientService;
 
-    public PatientController(PatientService patientService) {
+    private final PatientMapper mapper;
+
+    public PatientController(PatientService patientService, PatientMapper mapper) {
         this.patientService = patientService;
+        this.mapper = mapper;
     }
 
     @PostMapping
     public ResponseEntity<PatientResponse> save(@RequestBody PatientRequest patientRequest){
 
-        Patient patient = PatientMapper.toPatient(patientRequest);
+        Patient patient = mapper.toPatient(patientRequest);
 
         Patient patientSave = patientService.save(patient);
 
-        PatientResponse patientResponse = PatientMapper.toPatientResponse(patientSave);
+        PatientResponse patientResponse = mapper.toPatientResponse(patientSave);
 
        return ResponseEntity.status(HttpStatus.CREATED).body(patientResponse);
     }
 
     @GetMapping
-    public ResponseEntity<List<Patient>> getAll(){
-       List<Patient> patients = patientService.getAll();
-       return ResponseEntity.status(HttpStatus.OK).body(patients);
+    public ResponseEntity<List<PatientResponse>> getAll(){
+
+        List<PatientResponse> patientResponses = patientService.getAll()
+                .stream()
+                .map(mapper::toPatientResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(patientResponses);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Patient> getById(@PathVariable Long id){
-        Optional<Patient> optPatient = patientService.getById(id);
-
-        if(optPatient.isEmpty()){
-           return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(optPatient.get());
+    public ResponseEntity<PatientResponse> getById(@PathVariable Long id){
+        return patientService.getById(id)
+                .map(mapper::toPatientResponse)
+                .map(toPatientResponse -> ResponseEntity.status(HttpStatus.OK).body(toPatientResponse))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping
-    public ResponseEntity<Patient> update(@RequestBody Patient patient){
-        Patient updatePatient = patientService.save(patient);
-        return ResponseEntity.status(HttpStatus.OK).body(updatePatient);
+    public ResponseEntity<PatientResponse> update(@PathVariable long id,  @RequestBody PatientRequest patientRequest){
+        Patient patient = mapper.toPatient(patientRequest);
+        Patient patientSave = patientService.update(id, patient);
+        PatientResponse patientResponse = mapper.toPatientResponse(patientSave);
+        return ResponseEntity.status(HttpStatus.OK).body(patientResponse);
     }
 
    @DeleteMapping

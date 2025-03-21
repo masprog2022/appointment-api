@@ -3,29 +3,35 @@ package com.masprog.appointment_api.api.mapper;
 import com.masprog.appointment_api.api.request.PatientRequest;
 import com.masprog.appointment_api.api.response.PatientResponse;
 import com.masprog.appointment_api.domain.entity.Patient;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
 public class PatientMapper {
 
-    public static Patient toPatient(PatientRequest patientRequest){
-        Patient patient = new Patient();
-        patient.setName(patientRequest.getName());
-        patient.setSurname(patientRequest.getSurname());
-        patient.setEmail(patientRequest.getEmail());
-        patient.setCpf(patientRequest.getCpf());
+    private final ModelMapper mapper;
 
-        return patient;
+    public PatientMapper(ModelMapper mapper) {
+        this.mapper = mapper;
+    }
+
+
+    public Patient toPatient(PatientRequest patientRequest){
+        return mapper.map(patientRequest, Patient.class);
 
     }
 
-    public static PatientResponse toPatientResponse(Patient patient){
-        PatientResponse response = new PatientResponse();
-        response.setId(patient.getId());
-        response.setName(patient.getName());
-        response.setSurname(patient.getSurname());
-        response.setEmail(patient.getEmail());
-        response.setCpf(patient.getCpf());
+    public PatientResponse toPatientResponse(Patient patient){
+        return mapper.map(patient, PatientResponse.class);
 
-        return response;
+    }
 
+    public List<PatientResponse> toPacienteResponseList(List<Patient> patients) {
+        return patients.stream()
+                .map(this::toPatientResponse)
+                .collect(Collectors.toList());
     }
 }
