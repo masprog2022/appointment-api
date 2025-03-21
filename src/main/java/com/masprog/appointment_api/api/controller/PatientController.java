@@ -1,5 +1,8 @@
 package com.masprog.appointment_api.api.controller;
 
+import com.masprog.appointment_api.api.mapper.PatientMapper;
+import com.masprog.appointment_api.api.request.PatientRequest;
+import com.masprog.appointment_api.api.response.PatientResponse;
 import com.masprog.appointment_api.domain.entity.Patient;
 import com.masprog.appointment_api.domain.service.PatientService;
 import org.springframework.http.HttpStatus;
@@ -20,9 +23,15 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<Patient> save(@RequestBody Patient patient){
-       Patient save = patientService.save(patient);
-       return ResponseEntity.status(HttpStatus.CREATED).body(save);
+    public ResponseEntity<PatientResponse> save(@RequestBody PatientRequest patientRequest){
+
+        Patient patient = PatientMapper.toPatient(patientRequest);
+
+        Patient patientSave = patientService.save(patient);
+
+        PatientResponse patientResponse = PatientMapper.toPatientResponse(patientSave);
+
+       return ResponseEntity.status(HttpStatus.CREATED).body(patientResponse);
     }
 
     @GetMapping
