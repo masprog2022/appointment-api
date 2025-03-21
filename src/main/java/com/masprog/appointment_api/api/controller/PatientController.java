@@ -5,6 +5,7 @@ import com.masprog.appointment_api.api.request.PatientRequest;
 import com.masprog.appointment_api.api.response.PatientResponse;
 import com.masprog.appointment_api.domain.entity.Patient;
 import com.masprog.appointment_api.domain.service.PatientService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class PatientController {
     }
 
     @PostMapping
-    public ResponseEntity<PatientResponse> save(@RequestBody PatientRequest patientRequest){
+    public ResponseEntity<PatientResponse> save(@Valid @RequestBody PatientRequest patientRequest){
 
         Patient patient = mapper.toPatient(patientRequest);
 

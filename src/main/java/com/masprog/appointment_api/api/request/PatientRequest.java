@@ -1,9 +1,16 @@
 package com.masprog.appointment_api.api.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class PatientRequest {
+    @NotBlank(message = "Nome do paciente é obrigatório")
     private String name;
+
+
+    @NotBlank(message = "Sobrenome do paciente é obrigatório")
     private String surname;
     private String email;
+    @NotBlank(message = "CPF do paciente é obrigatório")
     private String cpf;
 
 
